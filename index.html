@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Gamedev Canvas Workshop</title>
+  <style>
+    * { padding: 0; margin: 0; }
+    canvas { background: #eee; display: block; margin: 0 auto; }
+  </style>
+</head>
+<body>
+
+<canvas id="myCanvas" width="480" height="640" onmousemove="setBar(event)"></canvas>
+<script>
+  var canvas = document.getElementById("myCanvas");
+  var ctx = canvas.getContext("2d");
+  
+  var barWidth = 80;
+  var barHeight = 20;
+  var barX = 10;
+  var barY = canvas.height - barHeight * 1.2;
+
+  var ballRadius = 10;
+  var ballX = canvas.width / 2;
+  var ballY = canvas.height - 30;
+  var ball_dx = 4;
+  var ball_dy = -4;
+  var ball_die = false;
+
+  var blockPositions = [
+    [0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0],
+    [0,1,1,0,0,1,1,0],
+    [0,1,1,0,0,1,1,0],
+    [1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1],
+    [0,1,1,1,1,1,1,0],
+    [0,1,1,1,1,1,1,0],
+    [0,0,1,1,1,1,0,0],
+    [0,0,1,1,1,1,0,0],
+    [0,0,0,1,1,0,0,0],
+    [0,0,0,1,1,0,0,0],
+  ];
+  var blockWidth = 60;
+  var blockHeight = 20;
+  var blockList = [];
+  blockPositions.forEach((row, i) => {
+    row.forEach((el, j) => {
+      if(el === 1) {
+        let newBlock = { x: j * blockWidth, y: i * blockHeight, width: blockWidth, height: blockHeight };
+        blockList.push(newBlock);
+      }
+    });
+  });
+  console.log(blockList);
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawBlock();
+    drawBar();
+    drawBall();
+
+    if(ballX + ball_dx < ballRadius || ballX + ball_dx > canvas.width - ballRadius) {
+      ball_dx *= -1;
+    }
+    if(ballY + ball_dy < ballRadius) {
+      ball_dy *= -1;
+    }
+    if(ballY + ball_dy > canvas.height) {
+      ball_die = true;
+    }
+
+    // console.log(isCollision(barX, barY, barWidth, barHeight, ballX, ballY, ballRadius));
+    if(isCollision(barX, barY, barWidth, barHeight, ballX, ballY, ballRadius)) {
+      if(ball_dy > 0) ball_dy *= -1;
+    }
+    blockList = blockCrush(blockList, ballX, ballY, ballRadius);
+
+    ballX += ball_dx;
+    ballY += ball_dy;
+  }
+  function drawBall() {
+    ctx.beginPath();
+    ctx.arc(ballX, ballY, ballRadius, 0, Math.PI*2);
+    ctx.fillStyle = "#0095DD";
+    ctx.fill();
+    ctx.closePath();
+  }
+  function drawBar() {
+    ctx.beginPath();
+    ctx.rect(barX, barY, barWidth, barHeight);
+    ctx.fillStyle = "#000";
+    ctx.fill();
+    ctx.closePath();
+  }
+  function drawBlock() {
+    blockList.map(block => {
+      ctx.beginPath();
+      ctx.rect(block.x + 2 , block.y + 2, block.width - 4, block.height - 4);
+      ctx.fillStyle = 'red';
+      ctx.fill();
+      ctx.closePath();
+    });
+  }
+
+  function setBar(e) {
+    // console.log(e.offsetX);
+    barX = e.offsetX - barWidth/2;
+  }
+  function isCollision(barX, barY, barWidth, barHeight, ballX, ballY, ballRadius) {
+    let left = barX - ballRadius;
+    let right = barX + barWidth + ballRadius;
+    let top = barY - ballRadius;
+    let bottom = barY + barHeight + ballRadius;
+    // console.log(left, right, top, bottom);
+    // console.log(ballX, ballY);
+
+    if((ballX >= left && ballX <= right) && (ballY >= top && ballY <= bottom)) {
+      return true;
+    } else return false;
+  }
+  function blockCrush(blockList, ballX, ballY, ballRadius) {
+    let deleteIndex = blockList.findIndex(block => {
+      let left = block.x - ballRadius;
+      let right = block.x + block.width + ballRadius;
+      let top = block.y - ballRadius;
+      let bottom = block.y + block.height + ballRadius;
+
+      if(ballX >= left && ballX <= block.x && ballY >= block.y && ballY <= block.y+block.height) {
+        ball_dx *= -1;
+        return true;
+      } else if(ballX >= block.x+block.width && ballX <= right && ballY >= block.y && ballY <= block.y+block.height) {
+        ball_dx *= -1;
+        return true;
+      } else if(ballY >= top && ballY <= block.y && ballX >= block.x && ballX <= block.x+block.width) {
+        ball_dy *= -1;
+        return true;
+      } else if(ballY >= block.y+block.height && ballY <= bottom && ballX >= block.x && ballX <= block.x+block.width) {
+        ball_dy *= -1;
+        return true;
+      }
+    });
+    console.log(deleteIndex);
+    if(deleteIndex !== -1) {
+      blockList.splice(deleteIndex, 1);
+    }
+    return blockList;
+  }
+  setInterval(() => {
+    if(!ball_die) draw();
+  }, 10);
+</script>
+
+</body>
+</html>
