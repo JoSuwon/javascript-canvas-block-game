@@ -10,7 +10,7 @@
 </head>
 <body>
 
-<canvas id="myCanvas" width="480" height="640" onmousemove="setBar(event)"></canvas>
+<canvas id="myCanvas" width="480" height="640" onmousemove="setBar(event)" onclick="setBar(event)"></canvas>
 <script>
   var canvas = document.getElementById("myCanvas");
   var ctx = canvas.getContext("2d");
@@ -69,7 +69,7 @@
     if(ballY + ball_dy > canvas.height) {
       ball_die = true;
     }
-    console.log(ball_dy * ball_dx);
+    // console.log(ball_dy * ball_dx);
     // console.log(isCollision(barX, barY, barWidth, barHeight, ballX, ballY, ballRadius));
     if(isCollision(barX, barY, barWidth, barHeight, ballX, ballY, ballRadius)) {
       // console.log('barX:', barX, 'barY:', barY, ' / ballX:', ballX, 'ballY:', ballY);
