@@ -69,21 +69,22 @@
     if(ballY + ball_dy > canvas.height) {
       ball_die = true;
     }
-
+    console.log(ball_dy * ball_dx);
     // console.log(isCollision(barX, barY, barWidth, barHeight, ballX, ballY, ballRadius));
     if(isCollision(barX, barY, barWidth, barHeight, ballX, ballY, ballRadius)) {
       // console.log('barX:', barX, 'barY:', barY, ' / ballX:', ballX, 'ballY:', ballY);
       let center = barX + barWidth / 2;
       if(ball_dy > 0) {
         let degree = Math.abs(ballX - center) / (barWidth / 2) + 0.2;
-        console.log(ballX - center);
-        console.log(degree);
+        // console.log(ballX - center);
+        // console.log(degree);
         if(ballX > center) {
           ball_dx = 4 * degree;
         } else {
           ball_dx = 4 * degree * -1;
         }
         ball_dy *= -1;
+        ball_dy *= 16 / Math.abs(ball_dy * ball_dx);
       }
     }
     blockList = blockCrush(blockList, ballX, ballY, ballRadius);
